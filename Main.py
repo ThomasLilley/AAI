@@ -2,7 +2,9 @@ import sys
 
 
 def task1a():
-
+    p_of_d = 0.0
+    p_of_not_t_given_not_d = 0.0
+    p_of_t_given_d = 0.0
     # input handling with exception catching
     flag = False
     while not flag:
@@ -15,10 +17,24 @@ def task1a():
             print("invalid input, try again")
             flag = False
 
-    # probability function
+    # calculate missing probabilities
+    p_of_not_d = 1 - p_of_d
+    p_of_t_given_not_d = 1 - p_of_not_t_given_not_d
 
+    p_of_t = (p_of_t_given_d * p_of_d) + (p_of_t_given_not_d*p_of_not_d)
+
+    # Bayes Theorem
+    p_of_d_given_t = (p_of_t_given_d*p_of_d)/p_of_t
     # return p(d|t)
-    return p_of_d, p_of_t_given_d, p_of_not_t_given_not_d
+    return p_of_d_given_t
+
+
+def task1b():
+    print("task1b")
+
+
+def task2():
+    print("task2")
 
 
 menu = False
@@ -41,17 +57,23 @@ while not menu:
         print('| TASKS ON PROBABILITIES ')
         print("|---------------------------------------")
         print('| 1) TASK 1.A')
-        print('| 2)')
+        print('| 2) TASK 1.B')
         print('| 3) Back to Main Menu')
         print("|---------------------------------------")
         opt2 = input("Please Select An Option: ")
         if opt2 == '1':
+            print("\nTask 1.A")
+            print("Please provide the following probabilities:")
             s = task1a()
-            print(s)
+            print("The Probability of having the disease given the test is positive, is:")
+            print("p(d|t):", s)
         elif opt2 == '2':
-            print("B")
+            print("Task 1.B")
+            task1b()
+            print("-")
         elif opt2 == '3':
-            print("C")
+            # loops round to main menu
+            print("\n")
         else:
             print("Invalid Input, Try Again: \n")
 
@@ -61,19 +83,18 @@ while not menu:
         print('| TASK ON HIDDEN MARKOV MODELS')
         print("|---------------------------------------")
         print('| 1)')
-        print('| 2)')
-        print('| 3) Back to Main Menu')
+        print('| 2) Back to Main Menu')
         print("|---------------------------------------")
         opt2 = input("Please Select An Option: ")
         if opt2 == '1':
             print()
         elif opt2 == '2':
-            print()
-        elif opt2 == '3':
-            print()
+            # loops round to main menu
+            print("\n")
         else:
             print("Invalid Input, Try Again: \n")
     elif opt1 == '3':
+        # ends the program gracefully
         sys.exit(0)
     else:
         print('Invalid Input, Try again: \n')
