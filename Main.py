@@ -1,5 +1,26 @@
 import sys
 
+
+def task1a():
+
+    # input handling with exception catching
+    flag = False
+    while not flag:
+        try:
+            p_of_d = float(input("P(d) : "))
+            p_of_t_given_d = float(input("P(t|d) : "))
+            p_of_not_t_given_not_d = float(input("P(¬t|¬d) : "))
+            flag = True
+        except ValueError:
+            print("invalid input, try again")
+            flag = False
+
+    # probability function
+
+    # return p(d|t)
+    return p_of_d, p_of_t_given_d, p_of_not_t_given_not_d
+
+
 menu = False
 
 while not menu:
@@ -19,13 +40,14 @@ while not menu:
         print("\n|---------------------------------------")
         print('| TASKS ON PROBABILITIES ')
         print("|---------------------------------------")
-        print('| 1)')
+        print('| 1) TASK 1.A')
         print('| 2)')
         print('| 3) Back to Main Menu')
         print("|---------------------------------------")
         opt2 = input("Please Select An Option: ")
         if opt2 == '1':
-            print("Function call here")
+            s = task1a()
+            print(s)
         elif opt2 == '2':
             print("B")
         elif opt2 == '3':
@@ -35,7 +57,6 @@ while not menu:
 
     # menu for tasks on markov models level 2
     elif opt1 == '2':
-        menu = True
         print("\n|---------------------------------------")
         print('| TASK ON HIDDEN MARKOV MODELS')
         print("|---------------------------------------")
@@ -59,3 +80,6 @@ while not menu:
 
 
 print("out of menu loop")
+
+
+
