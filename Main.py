@@ -48,18 +48,18 @@ def task1b():
     }
 
     p_values = {
-        'S': []*4,
+        'S': [0, 0, 0, 0],
         'YF': [],
         'AN': [],
         'PP': [],
         'G': [],
-        'AD': []*2,
+        'AD': [0, 0],
         'BED': [],
-        'CA': []*4,
-        'F': []*4,
+        'CA': [0, 0, 0, 0],
+        'F': [0, 0, 0, 0],
         'AL': [],
-        'C': []*4,
-        'LC': []*4
+        'C': [0, 0, 0, 0],
+        'LC': [0, 0, 0, 0]
     }
 
     for p_var, value in variables.items():
@@ -86,13 +86,17 @@ def task1b():
 
             parent2 = variables[value[2]]
             parent2 = parent2[0]
-            (ttl_true, ttl_y_z, y_true_z_false, y_false_z_true) = two_parent(value[0], parent1, parent2)
-            p_values[p_var[0]] = (ttl_true + 1)/(ttl_y_z + 2)  # both parents true
 
-            p_values[p_var[1]] = 0  # *********TEMP********** #
+            (x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz) = two_parent(value[0], parent1, parent2)
 
-            print(p_var, 'TWO PARENTS  total true:', ttl_true, 'total y_z:', ttl_y_z,
-                  'probability:', p_values[p_var])
+            print(x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz)
+
+            p_values[p_var][0] = (x_y_z + 1) / (y_z + 2)
+            p_values[p_var][1] = (x_noty_z + 1) / (noty_z + 2)
+            p_values[p_var][2] = (x_y_notz + 1) / (y_notz + 2)
+            p_values[p_var][3] = (x_noty_notz + 1) / (noty_notz + 2)
+
+            print(p_var, ': ', p_values[p_var])
 
 
 def no_parents(col):
@@ -113,7 +117,7 @@ def no_parents(col):
     return total_true, total_false
 
 
-def one_parent(col1, col2):
+def one_parent(col_x, col_y):
     total_true = 0
     total_false = 0
     total_y = 0
@@ -122,11 +126,11 @@ def one_parent(col1, col2):
     reader = csv.reader(file)
 
     for row in reader:
-        if row[col1] == '1' and row[col2] == '1':
+        if row[col_x] == '1' and row[col_y] == '1':
             total_true += 1
-        if row[col1] == '0' or row[col2] == '0':
+        if row[col_x] == '0' or row[col_y] == '0':
             total_false += 1
-        if row[col2] == '1':
+        if row[col_y] == '1':
             total_y += 1
     file.close()
 
@@ -134,41 +138,50 @@ def one_parent(col1, col2):
 
 
 def two_parent(col_x, col_y, col_z):
-    total_true = 0
-    total_false = 0
-    y_z_true = 0
-    y_z_false = 0
 
-    y_true_z_false = 0
-    y_false_z_true = 0
+    x_y_z = 0
+    y_z = 0
 
+    x_noty_z = 0
+    noty_z = 0
+
+    x_y_notz = 0
+    y_notz = 0
+
+    x_noty_notz = 0
+    noty_notz = 0
 
     file = open('lucas0_train.csv', 'r')
     reader = csv.reader(file)
 
     for row in reader:
-        # y true z true
-        if row[col_y] == '1' and row[col_z] == '1':
-            y_z_true += 1
+        # xyz true
         if row[col_x] == '1' and row[col_y] == '1' and row[col_z] == '1':
-            total_true += 1
+            x_y_z += 1
+        if row[col_y] == '1' and row[col_z] == '1':
+            y_z += 1
 
-        # y false z false
-        if row[col_x] == '0' and row[col_y] == '0' and row[col_z] == '0':
-            total_false += 1
-        if row[col_y] == '0' and row[col_z] == '0':
-            y_z_false += 1
-
-        # y false z true
+        # x not y z
+        if row[col_x] == '1' and row[col_y] == '0' and row[col_z] == '1':
+            x_noty_z += 1
         if row[col_y] == '0' and row[col_z] == '1':
-            y_false_z_true += 1
+            noty_z += 1
 
-        # y true z false
+        # x y not z
+        if row[col_x] == '1' and row[col_y] == '1' and row[col_z] == '0':
+            x_y_notz += 1
         if row[col_y] == '1' and row[col_z] == '0':
-            y_true_z_false += 1
+            y_notz += 1
+
+        # x not y not z
+        if row[col_x] == '1' and row[col_y] == '0' and row[col_z] == '0':
+            x_noty_notz += 1
+        if row[col_y] == '0' and row[col_z] == '0':
+            noty_notz += 1
 
     file.close()
-    return total_true, y_z_true, y_true_z_false, y_false_z_true,
+
+    return x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz
 
 
 def task2():
