@@ -1,5 +1,7 @@
 import sys
 import csv
+import random
+import numpy as np
 
 
 def task1a():
@@ -32,6 +34,7 @@ def task1a():
 
 def task1b():
 
+    # dictionary of variables and their corresponding parents, also the column no in the csv file
     variables = {
         'S': [0, 'AN', 'PP'],
         'YF': [1, 'S'],
@@ -47,6 +50,7 @@ def task1b():
         'LC': [11, 'S', 'G']
     }
 
+    # a dictionary to store the calculated probabilities
     p_values = {
         'S': [0, 0, 0, 0],
         'YF': [],
@@ -68,7 +72,8 @@ def task1b():
             (ttl_true, ttl_false) = (no_parents(value[0]))
 
             p_values[p_var] = (ttl_true + 1) / (ttl_true+ttl_false+2)
-            print(p_var, 'NO PARENTS total true:', ttl_true, 'total false:', ttl_false, 'Probability:', p_values[p_var])
+            # print(p_var, 'NO PARENTS total true:', ttl_true, 'total false:', ttl_false,
+            # 'Probability:', p_values[p_var])
 
         if len(value) == 2:  # infer one parent
 
@@ -78,7 +83,8 @@ def task1b():
 
             p_values[p_var] = (ttl_true + 1) / (ttl_y + 2)
 
-            print(p_var, 'ONE PARENT  total true:', ttl_true, 'total false:', ttl_false, 'probability:', p_values[p_var])
+            print(p_var, 'ONE PARENT  total true:', ttl_true, 'total false:', ttl_false,
+                  'probability:', p_values[p_var])
 
         if len(value) == 3:  # infer two parents
             parent1 = variables[value[1]]
@@ -87,20 +93,74 @@ def task1b():
             parent2 = variables[value[2]]
             parent2 = parent2[0]
 
-            (x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz) = two_parent(value[0], parent1, parent2)
+            (x_y_z, y_z, x_not_y_z, not_y_z, x_y_not_z, y_not_z, x_not_y_not_z, not_y_not_z) \
+                = two_parent(value[0], parent1, parent2)
 
-            print(x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz)
+            # print(x_y_z, y_z, x_not_y_z, not_y_z, x_y_not_z, y_not_z, x_not_y_not_z, not_y_not_z)
 
             p_values[p_var][0] = (x_y_z + 1) / (y_z + 2)
-            p_values[p_var][1] = (x_noty_z + 1) / (noty_z + 2)
-            p_values[p_var][2] = (x_y_notz + 1) / (y_notz + 2)
-            p_values[p_var][3] = (x_noty_notz + 1) / (noty_notz + 2)
+            p_values[p_var][1] = (x_not_y_z + 1) / (not_y_z + 2)
+            p_values[p_var][2] = (x_y_not_z + 1) / (y_not_z + 2)
+            p_values[p_var][3] = (x_not_y_not_z + 1) / (not_y_not_z + 2)
 
-            print(p_var, ': ', p_values[p_var])
+            print(p_var, ':', p_values[p_var])
+
+    # generate a random, sample data set for prior sampling
+    samples = sample_gen()
+    prior_sampling(samples, p_values)
+
+
+def prior_sampling(sample, values):
+    sample_size = 10
+    cols = 8
+    sample_data_set = np.zeros((sample_size, cols))
+
+    for i in range(cols):
+        for j in range(sample_size):
+            if i == 0:
+                if sample[j][i] < values['AN']:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 1:
+                if sample[j][i] < values['PP']:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 2:
+                if sample[j][i] < (values['S'][0]) and sample_data_set[j][1] == 1 and sample_data_set[j][0] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['S'][1]) and sample_data_set[j][1] == 0 and sample_data_set[j][0] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['S'][2]) and sample_data_set[j][1] == 1 and sample_data_set[j][0] == 0:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['S'][3]) and sample_data_set[j][1] == 0 and sample_data_set[j][0] == 0:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            else:
+                sample_data_set[j][i] = 9
+
+    print(sample_data_set)
+
+
+def sample_gen():
+    sample_size = 10
+    cols = 8
+    sample_data_set = np.zeros((sample_size, cols))
+    # print(sample_data_set)
+
+    for i in range(sample_size):
+        for j in range(cols):
+            sample_data_set[i][j] = float(random.randint(0, 10000)/10000)
+
+    # print(sample_data_set)
+    return sample_data_set
 
 
 def no_parents(col):
 
+    # takes 1 arg, column of csv file and calculates no of true/ false values
     total_true = 0
     total_false = 0
 
@@ -117,7 +177,7 @@ def no_parents(col):
     return total_true, total_false
 
 
-def one_parent(col_x, col_y):
+def one_parent(col_x, col_y):  # takes two column no's as arguments
     total_true = 0
     total_false = 0
     total_y = 0
@@ -142,14 +202,14 @@ def two_parent(col_x, col_y, col_z):
     x_y_z = 0
     y_z = 0
 
-    x_noty_z = 0
-    noty_z = 0
+    x_not_y_z = 0
+    not_y_z = 0
 
-    x_y_notz = 0
-    y_notz = 0
+    x_y_not_z = 0
+    y_not_z = 0
 
-    x_noty_notz = 0
-    noty_notz = 0
+    x_not_y_not_z = 0
+    not_y_not_z = 0
 
     file = open('lucas0_train.csv', 'r')
     reader = csv.reader(file)
@@ -163,25 +223,25 @@ def two_parent(col_x, col_y, col_z):
 
         # x not y z
         if row[col_x] == '1' and row[col_y] == '0' and row[col_z] == '1':
-            x_noty_z += 1
+            x_not_y_z += 1
         if row[col_y] == '0' and row[col_z] == '1':
-            noty_z += 1
+            not_y_z += 1
 
         # x y not z
         if row[col_x] == '1' and row[col_y] == '1' and row[col_z] == '0':
-            x_y_notz += 1
+            x_y_not_z += 1
         if row[col_y] == '1' and row[col_z] == '0':
-            y_notz += 1
+            y_not_z += 1
 
         # x not y not z
         if row[col_x] == '1' and row[col_y] == '0' and row[col_z] == '0':
-            x_noty_notz += 1
+            x_not_y_not_z += 1
         if row[col_y] == '0' and row[col_z] == '0':
-            noty_notz += 1
+            not_y_not_z += 1
 
     file.close()
 
-    return x_y_z, y_z, x_noty_z, noty_z, x_y_notz, y_notz, x_noty_notz, noty_notz
+    return x_y_z, y_z, x_not_y_z, not_y_z, x_y_not_z, y_not_z, x_not_y_not_z, not_y_not_z
 
 
 def task2():
@@ -232,7 +292,7 @@ while not menu:
         print('\n|---------------------------------------')
         print('| TASK ON HIDDEN MARKOV MODELS')
         print('|---------------------------------------')
-        print('| 1)')
+        print('| 1) Task on hidden markov models')
         print('| 2) Back to Main Menu')
         print('|---------------------------------------')
         opt2 = input('Please Select An Option: ')
@@ -250,7 +310,7 @@ while not menu:
         print('Invalid Input, Try again: \n')
 
 
-print('out of menu loop')
+print('out of menu loop, this should not happen!')
 
 
 
