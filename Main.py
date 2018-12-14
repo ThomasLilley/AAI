@@ -46,7 +46,7 @@ def task1b():
         'CA': [7, 'AD', 'F'],
         'F': [8, 'LC', 'C'],
         'AL': [9],
-        'C': [10],
+        'C': [10, 'AL', 'LC'],
         'LC': [11, 'S', 'G']
     }
 
@@ -111,23 +111,23 @@ def task1b():
 
 
 def prior_sampling(sample, values):
-    sample_size = 10
-    cols = 8
+    sample_size = 100000
+    cols = 9
     sample_data_set = np.zeros((sample_size, cols))
 
     for i in range(cols):
         for j in range(sample_size):
-            if i == 0:
+            if i == 0:  # ANXIETY
                 if sample[j][i] < values['AN']:
                     sample_data_set[j][i] = 1
                 else:
                     sample_data_set[j][i] = 0
-            elif i == 1:
+            elif i == 1:  # PEER PRESSURE
                 if sample[j][i] < values['PP']:
                     sample_data_set[j][i] = 1
                 else:
                     sample_data_set[j][i] = 0
-            elif i == 2:
+            elif i == 2:  # SMOKING
                 if sample[j][i] < (values['S'][0]) and sample_data_set[j][1] == 1 and sample_data_set[j][0] == 1:
                     sample_data_set[j][i] = 1
                 elif sample[j][i] < (values['S'][1]) and sample_data_set[j][1] == 0 and sample_data_set[j][0] == 1:
@@ -138,15 +138,61 @@ def prior_sampling(sample, values):
                     sample_data_set[j][i] = 1
                 else:
                     sample_data_set[j][i] = 0
-            else:
-                sample_data_set[j][i] = 9
+            elif i == 3:  # GENETICS
+                if sample[j][i] < (values['G']):
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 4:  # BED
+                if sample[j][i] < (values['BED']):
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 5:  # LUNG CANCER
+                if sample[j][i] < (values['LC'][0]) and sample_data_set[j][3] == 1 and sample_data_set[j][2] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['LC'][1]) and sample_data_set[j][3] == 0 and sample_data_set[j][2] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['LC'][2]) and sample_data_set[j][3] == 1 and sample_data_set[j][2] == 0:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['LC'][3]) and sample_data_set[j][3] == 0 and sample_data_set[j][2] == 0:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 6:  # ALLERGY
+                if sample[j][i] < (values['AL']):
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 7:  # COUGHING
+                if sample[j][i] < (values['C'][0]) and sample_data_set[j][5] == 1 and sample_data_set[j][6] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['C'][1]) and sample_data_set[j][5] == 0 and sample_data_set[j][6] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['C'][2]) and sample_data_set[j][5] == 1 and sample_data_set[j][6] == 0:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['C'][3]) and sample_data_set[j][5] == 0 and sample_data_set[j][6] == 0:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
+            elif i == 8:  # FATIGUE
+                if sample[j][i] < (values['F'][0]) and sample_data_set[j][5] == 1 and sample_data_set[j][7] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['F'][1]) and sample_data_set[j][5] == 0 and sample_data_set[j][7] == 1:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['F'][2]) and sample_data_set[j][5] == 1 and sample_data_set[j][7] == 0:
+                    sample_data_set[j][i] = 1
+                elif sample[j][i] < (values['F'][3]) and sample_data_set[j][5] == 0 and sample_data_set[j][7] == 0:
+                    sample_data_set[j][i] = 1
+                else:
+                    sample_data_set[j][i] = 0
 
     print(sample_data_set)
 
 
 def sample_gen():
-    sample_size = 10
-    cols = 8
+    sample_size = 100000
+    cols = 9
     sample_data_set = np.zeros((sample_size, cols))
     # print(sample_data_set)
 
