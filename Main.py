@@ -4,6 +4,9 @@ import random
 import numpy as np
 
 
+sample_size = 1000000  # global variable
+
+
 def task1a():
     p_of_d = 0.0
     p_of_not_t_given_not_d = 0.0
@@ -65,6 +68,7 @@ def task1b():
         'C': [0, 0, 0, 0],
         'LC': [0, 0, 0, 0]
     }
+    # order is: 0,0,0,0, :  TT, TF, FT, FF
 
     for p_var, value in variables.items():
         if len(value) == 1:  # infer no parents
@@ -74,6 +78,7 @@ def task1b():
             p_values[p_var] = (ttl_true + 1) / (ttl_true+ttl_false+2)
             # print(p_var, 'NO PARENTS total true:', ttl_true, 'total false:', ttl_false,
             # 'Probability:', p_values[p_var])
+            # print(p_var, ':', p_values[p_var])
 
         if len(value) == 2:  # infer one parent
 
@@ -83,8 +88,7 @@ def task1b():
 
             p_values[p_var] = (ttl_true + 1) / (ttl_y + 2)
 
-            print(p_var, 'ONE PARENT  total true:', ttl_true, 'total false:', ttl_false,
-                  'probability:', p_values[p_var])
+            # print(p_var, ':', p_values[p_var])
 
         if len(value) == 3:  # infer two parents
             parent1 = variables[value[1]]
@@ -103,15 +107,17 @@ def task1b():
             p_values[p_var][2] = (x_y_not_z + 1) / (y_not_z + 2)
             p_values[p_var][3] = (x_not_y_not_z + 1) / (not_y_not_z + 2)
 
-            print(p_var, ':', p_values[p_var])
+            # print(p_var, ':', p_values[p_var])
 
     # generate a random, sample data set for prior sampling
+    print("Begin Prior Sampling (sample size 1 Million)...")
     samples = sample_gen()
-    prior_sampling(samples, p_values)
+    prior = prior_sampling(samples, p_values)
+    answer = reject_sampling(prior)
+    print("\nProbability of P(S|C=True, F=True): ", answer)
 
 
 def prior_sampling(sample, values):
-    sample_size = 100000
     cols = 9
     sample_data_set = np.zeros((sample_size, cols))
 
@@ -167,9 +173,9 @@ def prior_sampling(sample, values):
             elif i == 7:  # COUGHING
                 if sample[j][i] < (values['C'][0]) and sample_data_set[j][5] == 1 and sample_data_set[j][6] == 1:
                     sample_data_set[j][i] = 1
-                elif sample[j][i] < (values['C'][1]) and sample_data_set[j][5] == 0 and sample_data_set[j][6] == 1:
+                elif sample[j][i] < (values['C'][1]) and sample_data_set[j][6] == 0 and sample_data_set[j][5] == 1:
                     sample_data_set[j][i] = 1
-                elif sample[j][i] < (values['C'][2]) and sample_data_set[j][5] == 1 and sample_data_set[j][6] == 0:
+                elif sample[j][i] < (values['C'][2]) and sample_data_set[j][6] == 1 and sample_data_set[j][5] == 0:
                     sample_data_set[j][i] = 1
                 elif sample[j][i] < (values['C'][3]) and sample_data_set[j][5] == 0 and sample_data_set[j][6] == 0:
                     sample_data_set[j][i] = 1
@@ -178,20 +184,43 @@ def prior_sampling(sample, values):
             elif i == 8:  # FATIGUE
                 if sample[j][i] < (values['F'][0]) and sample_data_set[j][5] == 1 and sample_data_set[j][7] == 1:
                     sample_data_set[j][i] = 1
-                elif sample[j][i] < (values['F'][1]) and sample_data_set[j][5] == 0 and sample_data_set[j][7] == 1:
+                elif sample[j][i] < (values['F'][1]) and sample_data_set[j][7] == 0 and sample_data_set[j][5] == 1:
                     sample_data_set[j][i] = 1
-                elif sample[j][i] < (values['F'][2]) and sample_data_set[j][5] == 1 and sample_data_set[j][7] == 0:
+                elif sample[j][i] < (values['F'][2]) and sample_data_set[j][7] == 1 and sample_data_set[j][5] == 0:
                     sample_data_set[j][i] = 1
                 elif sample[j][i] < (values['F'][3]) and sample_data_set[j][5] == 0 and sample_data_set[j][7] == 0:
                     sample_data_set[j][i] = 1
                 else:
                     sample_data_set[j][i] = 0
 
-    print(sample_data_set)
+    # print(sample_data_set)
+
+    return sample_data_set
+
+
+def reject_sampling(prior):
+    # cols = 9
+    p_of_s_given_c_f = 0
+    p_of_not_s_given_c_f = 0
+    untrue = 0
+
+    for i in range(sample_size):
+        if prior[i][2] == 1 and prior[i][7] == 1 and prior[i][8] == 1:
+            p_of_s_given_c_f += 1
+        if prior[i][2] == 0 and prior[i][7] == 1 and prior[i][8] == 1:
+            p_of_not_s_given_c_f += 1
+        else:
+            untrue += 1
+
+    # print("p(S|C=True, F=True) :", p_of_s_given_c_f, "p(¬S|C=True, F=True) :", p_of_not_s_given_c_f,
+    #     "false values", untrue)
+
+    normalised = p_of_s_given_c_f * (1/(p_of_s_given_c_f+p_of_not_s_given_c_f))
+
+    return normalised
 
 
 def sample_gen():
-    sample_size = 100000
     cols = 9
     sample_data_set = np.zeros((sample_size, cols))
     # print(sample_data_set)
@@ -295,28 +324,31 @@ def task2():
 
 
 menu = False
-
+print(" _______________________________________")
+print("| AAI ASSIGNMENT 1 | THOMAS LILLEY 2018 |")
+print("|_______________________________________|")
 while not menu:
+
     # Main level menu
-    print('\n|---------------------------------------')
-    print('| Main Menu')
-    print('|---------------------------------------')
-    print('| 1) TASKS ON PROBABILITIES')
-    print('| 2) TASK ON HIDDEN MARKOV MODELS ')
-    print('| 3) Exit')
-    print('|---------------------------------------')
+    print(' _______________________________________')
+    print('| Main Menu                             |')
+    print('|_______________________________________|')
+    print('| 1) TASKS ON PROBABILITIES             |')
+    print('| 2) TASK ON HIDDEN MARKOV MODELS       |')
+    print('| 3) Exit                               |')
+    print('|_______________________________________|')
     opt1 = input('Please Select An Option: ')
 
     # menu for tasks on probability menu level 2
     if opt1 == '1':
 
-        print('\n|---------------------------------------')
-        print('| TASKS ON PROBABILITIES ')
-        print('|---------------------------------------')
-        print('| 1) TASK 1.A')
-        print('| 2) TASK 1.B')
-        print('| 3) Back to Main Menu')
-        print('|---------------------------------------')
+        print('\n _______________________________________')
+        print('| TASKS ON PROBABILITIES                |')
+        print('|_______________________________________|')
+        print('| 1) TASK 1.A                           |')
+        print('| 2) TASK 1.B                           |')
+        print('| 3) Back to Main Menu                  |')
+        print('|_______________________________________|')
         opt2 = input('Please Select An Option: ')
         if opt2 == '1':
             print('\nTask 1.A')
@@ -325,7 +357,6 @@ while not menu:
             print('The Probability of having the disease given the test is positive, is:')
             print('p(d|t):', s)
         elif opt2 == '2':
-            print('Task 1.B')
             task1b()
         elif opt2 == '3':
             # loops round to main menu
@@ -335,12 +366,12 @@ while not menu:
 
     # menu for tasks on markov models level 2
     elif opt1 == '2':
-        print('\n|---------------------------------------')
-        print('| TASK ON HIDDEN MARKOV MODELS')
-        print('|---------------------------------------')
-        print('| 1) Task on hidden markov models')
-        print('| 2) Back to Main Menu')
-        print('|---------------------------------------')
+        print('\n _______________________________________')
+        print('| TASK ON HIDDEN MARKOV MODELS          |')
+        print('|_______________________________________|')
+        print('| 1) Task on hidden markov models       |')
+        print('| 2) Back to Main Menu                  |')
+        print('|_______________________________________|')
         opt2 = input('Please Select An Option: ')
         if opt2 == '1':
             print()
