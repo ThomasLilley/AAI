@@ -3,7 +3,6 @@ import csv
 import random
 import numpy as np
 
-
 sample_size = 1000000  # global variable
 
 
@@ -320,14 +319,72 @@ def two_parent(col_x, col_y, col_z):
 
 
 def task2():
-    print('task2')
+    loop = True
+    allowed_chars = set('cwh')
+
+    transition = [[0.6, 0.4],
+                  [0.4, 0.6]]
+
+    initial = [0.5,
+               0.5]
+
+    states = {
+        'c': [[0.3, 0],
+              [0, 0.45]],
+
+        'w': [[0.35, 0],
+              [0, 0.45]],
+
+        'h': [[0.35, 0],
+              [0, 0.1]],
+    }
+    while loop:
+        print('\n _______________________________________')
+        print('| TASK ON HIDDEN MARKOV MODELS          |')
+        print('|_______________________________________|')
+        sin = input("Input sequence ( e.g. cwhwc ) :")
+        if set(sin).issubset(allowed_chars):
+            sin = list(sin)
+            # print(sin)
+
+            for item in sin:
+                a = states[item]
+                initial = dot_product(a, initial, transition)
+
+            loop = False
+            initial = sum(initial)
+            print("Probability of the sequence:", sin, "occurring is:", initial, "\n")
+        else:
+            print("Invalid Input Try Again:")
 
 
-menu = False
+def dot_product(state, initial, transition):
+    temp = [[0, 0],
+            [0, 0]]
+    temp1 = [0, 0]
+    # matrix:
+    # [ 0.0 , 0.1 ]
+    # [ 1,0,  1.1 ]
+
+    temp[0][0] = (state[0][0] * transition[0][0]) + (state[0][1] * transition[1][0])
+    temp[0][1] = (state[0][0] * transition[0][1]) + (state[0][1] * transition[1][0])
+    temp[1][0] = (state[1][0] * transition[0][0]) + (state[1][1] * transition[1][0])
+    temp[1][1] = (state[1][0] * transition[0][1]) + (state[1][1] * transition[1][1])
+
+    # recalculate hidden state
+    temp1[0] = (temp[0][0] * initial[0]) + (temp[0][1] * initial[1])
+    temp1[1] = (temp[1][0] * initial[0]) + (temp[1][1] * initial[1])
+
+    initial = temp1
+    return initial
+
+
+# Program menu and function calls for each task
+menu = True
 print(" _______________________________________")
 print("| AAI ASSIGNMENT 1 | THOMAS LILLEY 2018 |")
 print("|_______________________________________|")
-while not menu:
+while menu:
 
     # Main level menu
     print(' _______________________________________')
@@ -366,20 +423,7 @@ while not menu:
 
     # menu for tasks on markov models level 2
     elif opt1 == '2':
-        print('\n _______________________________________')
-        print('| TASK ON HIDDEN MARKOV MODELS          |')
-        print('|_______________________________________|')
-        print('| 1) Task on hidden markov models       |')
-        print('| 2) Back to Main Menu                  |')
-        print('|_______________________________________|')
-        opt2 = input('Please Select An Option: ')
-        if opt2 == '1':
-            print()
-        elif opt2 == '2':
-            # loops round to main menu
-            print('\n')
-        else:
-            print('Invalid Input, Try Again: \n')
+        task2()
     elif opt1 == '3':
         # ends the program gracefully
         sys.exit(0)
